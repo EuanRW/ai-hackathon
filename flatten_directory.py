@@ -28,7 +28,5 @@ def flatten_directory(src_dir, dest_dir):
             # If you want to MOVE instead of COPY, replace above with:
             # shutil.move(os.path.join(root, file), dest_path)
 
-            print(f"Processed: {rel_path} -> {flat_name}")
-
 # Example usage
 flatten_directory("daily", "flattened")
