@@ -181,6 +181,9 @@ def save_solution_with_clues(puzzle, clue_numbers, across_clues, down_clues, out
     with open(out_path, "w") as f:
         json.dump(data, f, indent=2)
 
+# Pylint “no-member” error happens because Pylint fails to detect constants defined in C extensions in PIL/Pillow.
+# pylint: disable=no-member
+
 def augment_image(img):
     # Mild rotation ±2.5°
     angle = random.uniform(-2.5, 2.5)
