@@ -1,4 +1,6 @@
-# 🚀 Workflow with uv
+# 🚀 ai-hackathon
+
+## Project setup
 
 Create the venv
 
@@ -13,8 +15,6 @@ Install dependencies
 ```bash
 uv pip install -r pyproject.toml
 ```
-
-(actually uv installs automatically when you run inside the venv)
 
 Run inside env
 
