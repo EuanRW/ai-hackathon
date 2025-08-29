@@ -30,3 +30,7 @@ uv lock
 ```
 
 → Generates uv.lock with all resolved versions.
+
+## How to use this project
+
+Check out the python notebooks for examples of how to use the scripts.
