@@ -1,5 +1,11 @@
 # 🚀 ai-hackathon
 
+## System requiremnets
+
+- Use WSL Ubuntu 24
+- Docker
+- Terraform
+
 ## Project setup
 
 Create the venv
@@ -9,6 +15,12 @@ uv venv
 ```
 
 → This will refuse if Python 3.12 isn’t installed, since we pinned ==3.12.*.
+
+Activate venv
+
+```bash
+source .venv/bin/activate
+```
 
 Install dependencies
 
