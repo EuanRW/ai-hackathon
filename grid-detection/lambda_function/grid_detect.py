@@ -214,19 +214,18 @@ def draw_bounding_box(image, bounding_box_coords, color=(0, 255, 0), thickness=2
         print(f"An error occurred: {e}")
         return None
 
-def get_crossword_grid_array(image_path):
+def get_crossword_grid_array(image):
     """
     End-to-end wrapper to detect crossword grid and return matrix.
     
     Args:
-        image_path (str | Path): Path to crossword image file
+        image (np.ndarray): OpenCV image array (BGR).
     
     Returns:
         np.ndarray: Crossword grid matrix (0 = black cell, 1 = answer cell)
     """
-    image = cv2.imread(str(image_path))
-    if image is None:
-        raise FileNotFoundError(f"Could not load image {image_path}")
+    if image is None or not isinstance(image, np.ndarray):
+        raise ValueError("Input must be a valid OpenCV image (numpy.ndarray)")
 
     # Step 1: find bounding box
     bbox = find_crossword_bounding_box(image)
@@ -245,8 +244,6 @@ def get_crossword_grid_array(image_path):
     matrix, overlay = detect_crossword_grid(warped)
 
     return matrix
-
-
 
 # Example usage
 image_file_name = Path('dataset/images/daily-1994-02-Feb0494.png')
