@@ -5,6 +5,7 @@
 - Use WSL Ubuntu 24
 - Docker
 - Terraform
+- AWS cli
 
 ## Project setup
 
