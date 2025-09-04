@@ -158,6 +158,18 @@ def save_solution_with_clues(puzzle, clue_numbers, across_clues, down_clues, out
             else:  # answer square
                 row.append(1)
         solution_grid.append(row)
+    
+    # Add a numbers grid (0 if no clue number, otherwise the number)
+    numbers_grid = []
+    for r in range(puzzle.height):
+        row = []
+        for c in range(puzzle.width):
+            idx = r * puzzle.width + c
+            if idx in clue_numbers:
+                row.append(clue_numbers[idx])
+            else:
+                row.append(0)
+        numbers_grid.append(row)
 
     # Extract full word solutions
     across_words, down_words = extract_word_solutions(puzzle, clue_numbers)
@@ -167,6 +179,7 @@ def save_solution_with_clues(puzzle, clue_numbers, across_clues, down_clues, out
         "width": puzzle.width,
         "height": puzzle.height,
         "grid": solution_grid,
+        "numbers": numbers_grid,
         "clues": {
             "across": across_clues,
             "down": down_clues

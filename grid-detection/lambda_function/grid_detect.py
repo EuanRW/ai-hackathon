@@ -204,8 +204,41 @@ def detect_crossword_grid(image):
 
     return matrix, overlay
 
+def number_crossword_grid(matrix):
+    """
+    Takes a 0/1 crossword matrix and assigns clue numbers.
+    
+    Returns:
+        numbers_matrix (2D array): same shape as matrix, 0 = no number, >0 = clue number
+        across_clues (list): list of (num, row, col)
+        down_clues (list): list of (num, row, col)
+    """
+    n_rows, n_cols = matrix.shape
+    numbers_matrix = np.zeros_like(matrix, dtype=int)
+    across_clues = []
+    down_clues = []
+    
+    clue_num = 1
+    for r in range(n_rows):
+        for c in range(n_cols):
+            if matrix[r, c] == 0:
+                continue  # black square
+            
+            starts_across = (c == 0 or matrix[r, c-1] == 0) and (c+1 < n_cols and matrix[r, c+1] == 1)
+            starts_down   = (r == 0 or matrix[r-1, c] == 0) and (r+1 < n_rows and matrix[r+1, c] == 1)
+            
+            if starts_across or starts_down:
+                numbers_matrix[r, c] = clue_num
+                if starts_across:
+                    across_clues.append((clue_num, r, c))
+                if starts_down:
+                    down_clues.append((clue_num, r, c))
+                clue_num += 1
+    
+    return numbers_matrix, across_clues, down_clues
+
+# Utility function to draw bounding box on image for visualization
 def draw_bounding_box(image, bounding_box_coords, color=(0, 255, 0), thickness=2):
-    # This function remains unchanged from your original script
     try:
         x, y, w, h = bounding_box_coords
         cv2.rectangle(image, (x, y), (x + w, y + h), color, thickness)
@@ -216,13 +249,16 @@ def draw_bounding_box(image, bounding_box_coords, color=(0, 255, 0), thickness=2
 
 def get_crossword_grid_array(image):
     """
-    End-to-end wrapper to detect crossword grid and return matrix.
+    End-to-end wrapper to detect crossword grid and return:
+    - grid_matrix: 0 = black cell, 1 = answer cell
+    - number_matrix: 0 = no clue number, >0 = clue number
+    - across_clues, down_clues (lists of clue starts)
     
     Args:
         image (np.ndarray): OpenCV image array (BGR).
     
     Returns:
-        np.ndarray: Crossword grid matrix (0 = black cell, 1 = answer cell)
+        tuple: (grid_matrix, number_matrix, across_clues, down_clues)
     """
     if image is None or not isinstance(image, np.ndarray):
         raise ValueError("Input must be a valid OpenCV image (numpy.ndarray)")
@@ -241,9 +277,13 @@ def get_crossword_grid_array(image):
         raise RuntimeError("Failed to warp crossword grid")
 
     # Step 3: detect grid (matrix + overlay)
-    matrix, overlay = detect_crossword_grid(warped)
+    grid_matrix, overlay = detect_crossword_grid(warped)
 
-    return matrix
+    # Step 4: assign clue numbers
+    number_matrix, across_clues, down_clues = number_crossword_grid(grid_matrix)
+
+    return grid_matrix, number_matrix, across_clues, down_clues
+
 
 # Example usage
 image_file_name = Path('dataset/images/daily-1994-02-Feb0494.png')
