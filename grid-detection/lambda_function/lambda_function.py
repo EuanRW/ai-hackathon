@@ -17,11 +17,15 @@ def lambda_handler(event, context):
         np_arr = np.frombuffer(img_bytes, np.uint8)
         image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
-        matrix = get_crossword_grid_array(image)
+        # Unpack the new return values
+        grid_matrix, number_matrix, across_clues, down_clues = get_crossword_grid_array(image)
 
         return {
             "statusCode": 200,
-            "matrix": matrix.tolist()
+            "grid_matrix": grid_matrix.tolist(),
+            "number_matrix": number_matrix.tolist(),
+            "across_clues": across_clues,
+            "down_clues": down_clues
         }
     except Exception as e:
         return {
