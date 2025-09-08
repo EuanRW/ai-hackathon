@@ -9,13 +9,14 @@
 2. Build function zip:
 
    ```bash
-    ./build_function_zip.sh
+    cd utils
+    ./build_grid_detection_function_zip.sh
    ```
 
 3. Build opencv and numpy layer zip:
 
    ```bash
-    ./build_layer_zip.sh
+    ./build_opencv_numpy_layer_zip.sh.sh
    ```
 
 4. Apply changes:
