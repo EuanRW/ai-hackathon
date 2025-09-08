@@ -8,50 +8,50 @@ def lambda_handler(event, context):
     bucket = event["bucket"]
     key = event["key"]
 
+    TOLERANCE = 0.05
+
     response = textract.analyze_document(
         Document={"S3Object": {"Bucket": bucket, "Name": key}},
         FeatureTypes=["LAYOUT"]
     )
 
-    # Collect lines with positions
     lines = []
+    across_header_left = None
+    down_header_left = None
+
     for block in response["Blocks"]:
         if block["BlockType"] == "LINE":
             text = block["Text"].strip()
-
-            # 🔑 Skip lines that are just numbers (grid labels)
-            if re.match(r'^\d+\.?$', text):
+            
+            # Find headers to define column boundaries
+            if re.match(r'^\s*Across[:\s]*$', text, re.IGNORECASE):
+                across_header_left = block["Geometry"]["BoundingBox"]["Left"]
                 continue
-
+            if re.match(r'^\s*Down[:\s]*$', text, re.IGNORECASE):
+                down_header_left = block["Geometry"]["BoundingBox"]["Left"]
+                continue
+            
+            # 🔑 Filter: Exclude lines that don't start with a number
+            if not re.match(r'^\d', text):
+                continue
+            
             lines.append({
                 "text": text,
                 "top": block["Geometry"]["BoundingBox"]["Top"],
                 "left": block["Geometry"]["BoundingBox"]["Left"]
             })
 
-    # Sort top-to-bottom, then left-to-right
+    # Sort lines
     lines = sorted(lines, key=lambda x: (x["top"], x["left"]))
 
     across_clues, down_clues = [], []
-
-    # Find median split between left/right columns
-    left_positions = [line["left"] for line in lines]
-    column_cutoff = (min(left_positions) + max(left_positions)) / 2
-
+    
+    # Assign lines to columns
     for line in lines:
-        text = line["text"]
-
-        # Skip obvious headers
-        if re.match(r'^\s*Across[:\s]*$', text, re.IGNORECASE):
-            continue
-        if re.match(r'^\s*Down[:\s]*$', text, re.IGNORECASE):
-            continue
-
-        # Decide column by "Left" position
-        if line["left"] < column_cutoff:
-            across_clues.append(text)
-        else:
-            down_clues.append(text)
+        if down_header_left is not None and line["left"] >= down_header_left - TOLERANCE:
+            down_clues.append(line["text"])
+        elif across_header_left is not None and line["left"] <= across_header_left + TOLERANCE:
+            across_clues.append(line["text"])
 
     result = {
         "across": across_clues,
@@ -60,5 +60,5 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "body": json.dumps(result)  # no indent, clean single JSON
+        "body": json.dumps(result)
     }
