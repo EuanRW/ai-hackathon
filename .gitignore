@@ -2,8 +2,5 @@ venv
 dataset
 data-generation/flattened
 __pycache__/
-terraform/utils/grid-detect-function.zip
-terraform/utils/clue-extraction-function.zip
-terraform/utils/solver-function.zip
-terraform/utils/opencv-numpy.zip
+terraform/utils/**/*.zip
 terraform/.terraform/

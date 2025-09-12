@@ -72,6 +72,15 @@ resource "aws_iam_role_policy_attachment" "clue_extraction_logging" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# Lambda Layer for Pillow
+resource "aws_lambda_layer_version" "pillow_layer" {
+  filename          = "${path.module}/utils/pillow-layer.zip"
+  layer_name        = "pillow-layer"
+  compatible_runtimes = ["python3.11"]
+
+  source_code_hash = filebase64sha256("${path.module}/utils/pillow-layer.zip")
+}
+
 # Lambda Function
 resource "aws_lambda_function" "clue_extraction_function" {
   function_name = "clue-extraction-function"
@@ -83,6 +92,11 @@ resource "aws_lambda_function" "clue_extraction_function" {
   memory_size      = 1024
   timeout          = 30
   source_code_hash = filebase64sha256("${path.module}/utils/clue-extraction-function.zip")
+
+  # Attach Pillow Lambda Layer
+  layers = [
+    aws_lambda_layer_version.pillow_layer.arn
+  ]
 
   tags = {
     Component = "Clue Extraction Lambda"
