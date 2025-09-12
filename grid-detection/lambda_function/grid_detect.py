@@ -264,10 +264,10 @@ def get_crossword_grid_array(image):
         raise ValueError("Input must be a valid OpenCV image (numpy.ndarray)")
 
     # Step 1: find bounding box
-    bbox = find_crossword_bounding_box(image)
-    if bbox is None:
+    grid_bbox = find_crossword_bounding_box(image)
+    if grid_bbox is None:
         raise RuntimeError("Failed to find crossword bounding box")
-    x, y, w, h = bbox
+    x, y, w, h = grid_bbox
 
     cropped = image[y:y+h, x:x+w]
 
@@ -282,7 +282,7 @@ def get_crossword_grid_array(image):
     # Step 4: assign clue numbers
     number_matrix, across_clues, down_clues = number_crossword_grid(grid_matrix)
 
-    return grid_matrix, number_matrix, across_clues, down_clues
+    return grid_matrix, number_matrix, across_clues, down_clues, grid_bbox
 
 
 # Example usage
